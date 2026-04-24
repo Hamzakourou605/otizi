@@ -156,8 +156,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* ─── Main Grid ─── */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Top Debtors */}
@@ -182,7 +181,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-rose-500 font-black">{(c.credit_total || 0).toLocaleString()} FCFA</p>
+                  <p className="text-rose-500 font-black">{(c.credit_total || 0).toLocaleString()} MAD</p>
                   <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Dette Active</p>
                 </div>
               </div>
