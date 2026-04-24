@@ -21,7 +21,13 @@ const Login = ({ setUser }) => {
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       setUser(res.data.user);
-      navigate('/');
+      
+      // Redirection directe selon le rôle pour éviter la page blanche
+      if (res.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/client');
+      }
     } catch (err) {
       setError(err.response?.data?.msg || 'Email ou mot de passe incorrect');
     } finally {

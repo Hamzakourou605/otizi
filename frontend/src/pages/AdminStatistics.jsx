@@ -207,7 +207,7 @@ const AdminStatistics = () => {
                     </div>
                   </td>
                   <td className="px-8 py-5">
-                    <p className="font-black text-slate-900">{(c.credit_total || 0).toLocaleString()} FCFA</p>
+                    <p className="font-black text-slate-900">{(c.credit_total || 0).toLocaleString()} MAD</p>
                   </td>
                   <td className="px-8 py-5">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${

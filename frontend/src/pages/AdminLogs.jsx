@@ -66,7 +66,7 @@ const AdminLogs = () => {
                     <p className="text-sm font-bold text-slate-700">{log.client_name || 'N/A'}</p>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <p className="text-sm font-black text-slate-900">{log.amount ? `${log.amount.toLocaleString()} FCFA` : '-'}</p>
+                    <p className="text-sm font-black text-slate-900">{log.amount ? `${log.amount.toLocaleString()} MAD` : '-'}</p>
                   </td>
                 </tr>
               ))}

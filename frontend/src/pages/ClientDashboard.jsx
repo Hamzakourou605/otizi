@@ -24,7 +24,7 @@ const ClientDashboard = () => {
     // WebSocket listener for real-time credit updates
     socket.on('credit_update', (data) => {
       console.log("Real-time update received:", data);
-      toast.success(`Votre solde a été mis à jour : ${data.new_balance.toLocaleString()} FCFA`, {
+      toast.success(`Votre solde a été mis à jour : ${data.new_balance.toLocaleString()} MAD`, {
         icon: '💰',
         duration: 5000
       });
@@ -97,7 +97,7 @@ const ClientDashboard = () => {
           <div className="relative z-10">
             <p className="text-slate-400 font-black text-xs uppercase tracking-widest mb-2">Mon Solde Actuel</p>
             <h2 className="text-5xl font-black mb-8 tracking-tighter">
-              {(summary?.balance || 0).toLocaleString()} <span className="text-xl opacity-40 font-bold">FCFA</span>
+              {(summary?.balance || 0).toLocaleString()} <span className="text-xl opacity-40 font-bold">MAD</span>
             </h2>
             
             <div className="space-y-4">

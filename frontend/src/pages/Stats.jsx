@@ -19,7 +19,7 @@ const Stats = () => {
             </div>
             <span className="text-xs font-bold bg-rose-50 text-rose-600 px-2 py-1 rounded-lg">+12%</span>
           </div>
-          <p className="text-3xl font-black text-slate-800">2,450 <span className="text-sm opacity-60">FCFA</span></p>
+          <p className="text-3xl font-black text-slate-800">2,450 <span className="text-sm opacity-60">MAD</span></p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-sm">
