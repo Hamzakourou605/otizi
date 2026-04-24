@@ -155,7 +155,6 @@ const AdminDashboard = () => {
             <ArrowUpRight size={14} /> Global encaissé
           </div>
         </div>
-        </div>
       </div>
 
       {/* ─── Main Grid ─── */}
