@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+@import "tailwindcss";
+
+
+/* ─────────────────────────────────────────
+   Base
+───────────────────────────────────────── */
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+
+  input, select, textarea {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Components
+───────────────────────────────────────── */
+@layer components {
+
+  /* Cards */
+  .card {
+    @apply bg-white border border-slate-100 rounded-[2rem] shadow-sm;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white
+           px-6 py-3 rounded-2xl font-bold text-sm
+           flex items-center justify-center gap-2
+           transition-all duration-150 shadow-lg shadow-indigo-100
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-outline {
+    @apply bg-white hover:bg-slate-50 active:scale-95
+           border border-slate-200 text-slate-700
+           px-6 py-3 rounded-2xl font-bold text-sm
+           flex items-center justify-center gap-2
+           transition-all duration-150;
+  }
+
+  .btn-danger {
+    @apply bg-rose-50 hover:bg-rose-100 active:scale-95
+           border border-rose-100 text-rose-600
+           px-6 py-3 rounded-2xl font-bold text-sm
+           flex items-center justify-center gap-2
+           transition-all duration-150;
+  }
+
+  /* Form fields */
+  .field {
+    @apply w-full px-5 py-4
+           bg-slate-50 border border-slate-100 rounded-2xl
+           text-slate-800 font-medium
+           outline-none placeholder:text-slate-300
+           transition-all duration-150
+           focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100;
+  }
+
+  .field-icon {
+    @apply pl-12;
+  }
+
+  /* Badge / Pills */
+  .badge-achat {
+    @apply bg-rose-50 text-rose-500 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full;
+  }
+
+  .badge-paiement {
+    @apply bg-emerald-50 text-emerald-500 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full;
+  }
+
+  /* Stat card */
+  .stat-card {
+    @apply bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm;
+  }
+
+  /* Nav item mobile */
+  .nav-mobile {
+    @apply flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 transition-all;
+  }
+  .nav-mobile.active {
+    @apply text-indigo-600;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Scrollbar
+───────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
