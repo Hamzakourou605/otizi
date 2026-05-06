@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "OtiZi",
+    "slug": "otizi-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1e1b4b"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.otizi.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4f46e5"
+      },
+      "package": "com.otizi.mobile",
+      "edgeToEdgeEnabled": true,
+      "usesCleartextTraffic": true,
+      "permissions": [
+        "INTERNET"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "description": "Gestion de crédit magasin - OtiZi",
+    "platforms": [
+      "android",
+      "ios",
+      "web"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "642ff134-f44d-4396-badc-65af79794f01"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": true
+          },
+          "ios": {
+            "newArchEnabled": true
+          }
+        }
+      ]
+    ],
+    "owner": "kodo88"
+  }
+}

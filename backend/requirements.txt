@@ -5,7 +5,8 @@ flask-socketio
 pymongo[srv]
 bcrypt
 python-dotenv
-fpdf
+fpdf2
+requests
 eventlet
 gunicorn
 dnspython

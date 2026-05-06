@@ -7,6 +7,7 @@ from bson import ObjectId
 import bcrypt
 from datetime import datetime, timedelta
 from fpdf import FPDF
+import requests
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, emit
 import json
@@ -14,7 +15,7 @@ import json
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Configuration
@@ -31,6 +32,7 @@ db = client.get_database()
 users_col = db.users
 transactions_col = db.transactions
 admin_logs_col = db.admin_logs
+monthly_status_col = db.monthly_status # Nouvelle collection pour le statut des mois
 
 def log_admin_action(admin_id, action, client_id=None, amount=0, note=""):
     admin_logs_col.insert_one({
@@ -41,6 +43,14 @@ def log_admin_action(admin_id, action, client_id=None, amount=0, note=""):
         'note': note,
         'timestamp': datetime.utcnow()
     })
+
+@app.route('/', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'online',
+        'message': 'OtiZi Backend is running successfully on Render!',
+        'timestamp': datetime.utcnow()
+    }), 200
 
 # --- AUTH ROUTES ---
 
@@ -69,6 +79,43 @@ def register():
 
     return jsonify({'msg': 'User created successfully', 'id': str(user_id)}), 201
 
+@app.route('/admin/create-client', methods=['POST'])
+@jwt_required()
+def admin_create_client():
+    identity = get_jwt_identity()
+    admin_id, role = identity.split(':')
+    
+    if role != 'admin':
+        return jsonify({'msg': 'Admin access required'}), 403
+
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password', 'client123') # Mot de passe par défaut si non fourni
+    name = data.get('nom')
+    phone = data.get('telephone', '')
+
+    if not email or not name:
+        return jsonify({'msg': 'Nom et Email sont obligatoires'}), 400
+
+    if users_col.find_one({'email': email}):
+        return jsonify({'msg': 'Cet email existe déjà'}), 400
+
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    
+    user_id = users_col.insert_one({
+        'nom': name,
+        'email': email,
+        'telephone': phone,
+        'password': hashed_password,
+        'role': 'client',
+        'created_at': datetime.utcnow()
+    }).inserted_id
+
+    # Log l'action de l'admin
+    log_admin_action(admin_id, "CREATE_CLIENT", str(user_id), 0, f"Création du client {name}")
+
+    return jsonify({'msg': 'Client créé avec succès', 'id': str(user_id)}), 201
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -92,6 +139,45 @@ def login():
             'role': user['role']
         }
     }), 200
+
+@app.route('/admin/clients/<id>', methods=['DELETE'])
+@jwt_required()
+def delete_client(id):
+    identity = get_jwt_identity()
+    admin_id, role = identity.split(':')
+    
+    if role != 'admin':
+        return jsonify({'msg': 'Admin access required'}), 403
+
+    # 1. Supprimer l'utilisateur
+    res = users_col.delete_one({'_id': ObjectId(id)})
+    if res.deleted_count == 0:
+        return jsonify({'msg': 'Client non trouvé'}), 404
+
+    # 2. Supprimer toutes ses transactions
+    transactions_col.delete_many({'client_id': id})
+    
+    # 3. Supprimer ses statuts mensuels
+    monthly_status_col.delete_many({'client_id': id})
+
+    # 4. Log l'action
+    log_admin_action(admin_id, "DELETE_CLIENT", id, 0, "Suppression complète du client")
+
+    return jsonify({'msg': 'Client supprimé avec succès'}), 200
+    
+@app.route('/users/push-token', methods=['POST'])
+@jwt_required()
+def save_push_token():
+    identity = get_jwt_identity()
+    user_id, role = identity.split(':')
+    data = request.get_json()
+    token = data.get('push_token')
+    
+    if not token:
+        return jsonify({'msg': 'Token is required'}), 400
+        
+    users_col.update_one({'_id': ObjectId(user_id)}, {'$set': {'push_token': token}})
+    return jsonify({'msg': 'Push token updated'}), 200
 
 # --- ADMIN ROUTES ---
 
@@ -139,6 +225,10 @@ def get_client_details(id):
     total_achats = sum(t.get('montant', 0) for t in all_txs if t.get('type') in ['achat', 'correction'])
     total_paiements = sum(t.get('montant', 0) for t in all_txs if t.get('type') in ['paiement', 'bonus', 'remise'])
     user['current_balance'] = total_achats - total_paiements
+
+    # Get monthly statuses
+    monthly_statuses = list(monthly_status_col.find({'client_id': id}))
+    user['monthly_status'] = {m['mois']: m['is_paid'] for m in monthly_statuses}
 
     return jsonify(user), 200
 
@@ -302,13 +392,36 @@ def add_transaction():
         # Log action
         log_admin_action(user_id, f"ADD_{t_type.upper()}", client_id, amount, description)
 
-        # Emit WebSocket event for real-time update
+        # Emit WebSocket event for real-time update to the specific client
         socketio.emit('credit_update', {
             'client_id': client_id,
             'new_balance': new_balance,
             'type': t_type,
             'amount': amount
         }, room=client_id)
+
+        # Emit to all admins to sync their dashboards
+        socketio.emit('admin_update', {
+            'action': 'NEW_TRANSACTION',
+            'client_id': client_id,
+            'amount': amount,
+            'type': t_type
+        })
+
+        # Send Push Notification
+        client = users_col.find_one({'_id': ObjectId(client_id)})
+        if client and client.get('push_token'):
+            try:
+                title = "Nouveau crédit" if t_type == 'achat' else "Nouveau paiement"
+                body = f"Montant: {amount:.2f} MAD - {description}"
+                requests.post('https://exp.host/--/api/v2/push/send', json={
+                    'to': client['push_token'],
+                    'title': title,
+                    'body': body,
+                    'data': {'type': t_type, 'amount': amount}
+                }, timeout=5)
+            except Exception as e:
+                print(f"Error sending push: {e}")
 
         return jsonify({'msg': 'Transaction added', 'id': str(transaction_id), 'new_balance': new_balance}), 201
 
@@ -354,6 +467,69 @@ def get_client_transactions(id):
         t['_id'] = str(t['_id'])
     
     return jsonify(transactions), 200
+
+@app.route('/admin/pay-month', methods=['POST'])
+@jwt_required()
+def pay_month():
+    identity = get_jwt_identity()
+    admin_id, role = identity.split(':')
+    if role != 'admin':
+        return jsonify({'msg': 'Admin access required'}), 403
+
+    data = request.get_json()
+    client_id = data.get('client_id')
+    mois = data.get('mois') # Format YYYY-MM
+    amount_paid = float(data.get('montant', 0))
+
+    if not client_id or not mois:
+        return jsonify({'msg': 'Client et mois obligatoires'}), 400
+
+    # Créer une transaction de paiement pour solder le mois
+    transactions_col.insert_one({
+        'client_id': client_id,
+        'type': 'paiement',
+        'montant': amount_paid,
+        'description': f"Paiement complet du mois {mois}",
+        'date': datetime.now().strftime('%Y-%m-%d'),
+        'mois': mois,
+        'created_at': datetime.utcnow(),
+        'created_by': admin_id
+    })
+
+    # Enregistrer le statut "payé" pour ce mois
+    monthly_status_col.update_one(
+        {'client_id': client_id, 'mois': mois},
+        {'$set': {'is_paid': True, 'paid_at': datetime.utcnow()}},
+        upsert=True
+    )
+
+    log_admin_action(admin_id, "PAY_MONTH", client_id, amount_paid, f"Mois {mois} marqué comme payé")
+    
+    return jsonify({'msg': f'Le mois {mois} a été marqué comme payé'}), 200
+
+@app.route('/admin/clear-month', methods=['DELETE'])
+@jwt_required()
+def clear_month():
+    identity = get_jwt_identity()
+    admin_id, role = identity.split(':')
+    if role != 'admin':
+        return jsonify({'msg': 'Admin access required'}), 403
+
+    client_id = request.args.get('client_id')
+    mois = request.args.get('mois')
+
+    if not client_id or not mois:
+        return jsonify({'msg': 'Client et mois obligatoires'}), 400
+
+    # Supprimer toutes les transactions du mois
+    result = transactions_col.delete_many({'client_id': client_id, 'mois': mois})
+    
+    # Réinitialiser le statut payé
+    monthly_status_col.delete_one({'client_id': client_id, 'mois': mois})
+
+    log_admin_action(admin_id, "CLEAR_MONTH", client_id, 0, f"Transactions du mois {mois} supprimées")
+
+    return jsonify({'msg': f'{result.deleted_count} transactions supprimées pour le mois {mois}'}), 200
 
 # --- PDF EXPORT ---
 
@@ -430,9 +606,79 @@ def export_pdf():
     try:
         pdf.output(pdf_path)
     except Exception as e:
-        # Fallback for Unicode errors (very common with FPDF and French accents)
-        # We can try to encode as latin-1 or just ignore
-        pdf.output(pdf_path.encode('latin-1', 'ignore').decode('latin-1'))
+        print(f"PDF Output Error: {e}")
+        # Try to clean strings if they cause issues
+        return jsonify({'msg': f'Error generating PDF: {str(e)}'}), 500
+
+    return send_file(pdf_path, as_attachment=True)
+
+@app.route('/export/admin/all', methods=['GET'])
+@jwt_required()
+def export_admin_all():
+    identity = get_jwt_identity()
+    user_id, role = identity.split(':')
+    if role != 'admin':
+        return jsonify({'msg': 'Admin access required'}), 403
+
+    clients = list(users_col.find({'role': 'client'}, {'password': 0}))
+    all_txs = list(transactions_col.find())
+    
+    total_global_credit = 0
+    client_summaries = []
+    
+    for c in clients:
+        c_id_str = str(c['_id'])
+        c_txs = [t for t in all_txs if str(t.get('client_id')) == c_id_str]
+        
+        achats = sum(t.get('montant', 0) for t in c_txs if t.get('type') in ['achat', 'correction'])
+        paiements = sum(t.get('montant', 0) for t in c_txs if t.get('type') in ['paiement', 'bonus', 'remise'])
+        balance = achats - paiements
+        
+        total_global_credit += balance
+        client_summaries.append({
+            'nom': c.get('nom', 'N/A'),
+            'achats': achats,
+            'paiements': paiements,
+            'balance': balance
+        })
+
+    # PDF Generation
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("helvetica", 'B', 16)
+    pdf.cell(0, 10, "Rapport Global des Credits - OtiZi", ln=True, align='C')
+    pdf.ln(10)
+    
+    pdf.set_font("helvetica", 'B', 12)
+    pdf.cell(0, 10, f"Total des Credits Clients: {total_global_credit:.2f} MAD", ln=True)
+    pdf.ln(5)
+    
+    pdf.set_font("helvetica", 'B', 10)
+    pdf.cell(80, 10, "Client", 1)
+    pdf.cell(35, 10, "Total Achats", 1)
+    pdf.cell(35, 10, "Total Paiements", 1)
+    pdf.cell(40, 10, "Solde (Credit)", 1)
+    pdf.ln()
+    
+    pdf.set_font("helvetica", '', 10)
+    for s in client_summaries:
+        pdf.cell(80, 10, s['nom'][:35], 1)
+        pdf.cell(35, 10, f"{s['achats']:.2f}", 1)
+        pdf.cell(35, 10, f"{s['paiements']:.2f}", 1)
+        pdf.cell(40, 10, f"{s['balance']:.2f}", 1)
+        pdf.ln()
+
+    pdf_output = "rapport_global_otizi.pdf"
+    export_dir = 'exports'
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
+        
+    pdf_path = os.path.join(export_dir, pdf_output)
+    try:
+        pdf.output(pdf_path)
+    except Exception as e:
+        print(f"Global PDF Error: {e}")
+        return jsonify({'msg': f'Error generating Global PDF: {str(e)}'}), 500
 
     return send_file(pdf_path, as_attachment=True)
 
@@ -499,11 +745,16 @@ def get_client_summary():
     # Format for Recharts
     chart_data = [{"month": m, "balance": b} for m, b in sorted(evolution.items())]
 
+    # Get monthly statuses
+    monthly_statuses = list(monthly_status_col.find({'client_id': client_id}))
+    paid_months = {m['mois']: m['is_paid'] for m in monthly_statuses}
+
     return jsonify({
         'total_credit': total_achats,
         'total_paid': total_paiements,
         'balance': total_achats - total_paiements,
-        'monthly_evolution': chart_data
+        'monthly_evolution': chart_data,
+        'monthly_status': paid_months
     }), 200
 
 @socketio.on('join')

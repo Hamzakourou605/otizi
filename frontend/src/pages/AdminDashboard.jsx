@@ -8,6 +8,7 @@ import {
 import { toast } from 'react-hot-toast';
 import { DashboardSkeleton } from '../components/Skeleton';
 import API from '../config';
+import socket from '../services/socket';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -21,6 +22,15 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchStats();
+    
+    socket.on('admin_update', (data) => {
+      console.log("Admin update received:", data);
+      fetchStats();
+    });
+
+    return () => {
+      socket.off('admin_update');
+    };
   }, []);
 
   const fetchStats = async () => {
