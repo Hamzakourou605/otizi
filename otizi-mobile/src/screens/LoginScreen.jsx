@@ -115,7 +115,7 @@ export default function LoginScreen() {
               style={styles.btnWrap}
             >
               <LinearGradient
-                colors={['#6366f1', '#4f46e5']}
+                colors={['#a16207', '#ca8a04']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.btn}

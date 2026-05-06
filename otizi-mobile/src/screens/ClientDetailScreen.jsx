@@ -188,7 +188,7 @@ export default function ClientDetailScreen({ route, navigation }) {
 
         {/* Stats Row */}
         <View style={styles.statsContainer}>
-            <LinearGradient colors={['#1e1b4b', '#3730a3']} style={styles.statBox}>
+            <LinearGradient colors={['#a16207', '#854d0e']} style={styles.statBox}>
                 <Text style={styles.statLabel}>SOLDE GLOBAL</Text>
                 <Text style={styles.statValue}>{(client?.current_balance || 0).toLocaleString()} MAD</Text>
             </LinearGradient>

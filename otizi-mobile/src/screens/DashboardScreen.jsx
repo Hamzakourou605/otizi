@@ -148,7 +148,7 @@ export default function DashboardScreen({ navigation }) {
               <Text style={styles.logoutText}>DÉCONNEXION</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-              <LinearGradient colors={['#6366f1', '#4f46e5']} style={styles.avatarCircle}>
+              <LinearGradient colors={['#a16207', '#ca8a04']} style={styles.avatarCircle}>
                 <Text style={styles.avatarText}>
                   {(user?.nom || 'U').substring(0, 2).toUpperCase()}
                 </Text>
@@ -159,7 +159,7 @@ export default function DashboardScreen({ navigation }) {
 
         {/* Main Balance Card */}
         <LinearGradient
-          colors={['#1e1b4b', '#312e81', '#4338ca']}
+          colors={['#854d0e', '#a16207', '#ca8a04']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.balanceCard}
