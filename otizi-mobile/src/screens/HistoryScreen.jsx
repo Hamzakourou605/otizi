@@ -153,7 +153,7 @@ export default function HistoryScreen({ navigation, route }) {
         renderItem={({ item }) => <TransactionItem item={item} />}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#6366f1" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#ca8a04" />
         }
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -241,8 +241,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   chipActive: {
-    backgroundColor: '#4f46e5',
-    borderColor: '#4f46e5',
+    backgroundColor: '#ca8a04',
+    borderColor: '#ca8a04',
   },
   chipText: {
     fontSize: 12,

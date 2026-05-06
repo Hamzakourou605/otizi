@@ -55,7 +55,7 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
-          <LinearGradient colors={['#6366f1', '#4338ca']} style={styles.avatarLarge}>
+          <LinearGradient colors={['#a16207', '#ca8a04']} style={styles.avatarLarge}>
             <Text style={styles.avatarLargeText}>
               {(user?.nom || 'U').substring(0, 2).toUpperCase()}
             </Text>
@@ -169,16 +169,16 @@ const styles = StyleSheet.create({
     width: 80, height: 80, borderRadius: 24,
     justifyContent: 'center', alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#6366f1', shadowOffset: { width: 0, height: 8 },
+    shadowColor: '#ca8a04', shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3, shadowRadius: 16, elevation: 6,
   },
   avatarLargeText: { color: '#fff', fontWeight: '900', fontSize: 28 },
   userName: { fontSize: 22, fontWeight: '900', color: '#0f172a', marginBottom: 8 },
   roleBadge: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20 },
-  adminBadge: { backgroundColor: '#ede9fe' },
+  adminBadge: { backgroundColor: '#fef3c7' },
   clientBadge: { backgroundColor: '#f0fdf4' },
   roleText: { fontSize: 13, fontWeight: '800' },
-  adminRoleText: { color: '#7c3aed' },
+  adminRoleText: { color: '#854d0e' },
   clientRoleText: { color: '#22c55e' },
   card: {
     backgroundColor: '#fff', borderRadius: 24, padding: 20, marginBottom: 16,

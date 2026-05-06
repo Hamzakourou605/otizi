@@ -161,13 +161,13 @@ const styles = StyleSheet.create({
   exportIcon: { fontSize: 18 },
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
   clientCard: {
-    backgroundColor: '#1e1b4b', borderRadius: 20, padding: 20, marginBottom: 24,
+    backgroundColor: '#854d0e', borderRadius: 20, padding: 20, marginBottom: 24,
     shadowColor: '#000', shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2, shadowRadius: 20, elevation: 8,
   },
-  clientLabel: { color: '#94a3b8', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginBottom: 4 },
+  clientLabel: { color: '#fef3c7', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginBottom: 4 },
   clientName: { color: '#fff', fontSize: 20, fontWeight: '900', marginBottom: 6 },
-  clientBalance: { color: '#818cf8', fontSize: 13, fontWeight: '700' },
+  clientBalance: { color: '#fde68a', fontSize: 13, fontWeight: '700' },
   label: { fontSize: 13, fontWeight: '800', color: '#64748b', marginBottom: 12, marginTop: 12 },
   typesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   typeBtn: {
@@ -186,9 +186,9 @@ const styles = StyleSheet.create({
     minHeight: 100, textAlignVertical: 'top', marginBottom: 32,
   },
   submitBtn: {
-    backgroundColor: '#4f46e5', height: 56, borderRadius: 18,
+    backgroundColor: '#ca8a04', height: 56, borderRadius: 18,
     justifyContent: 'center', alignItems: 'center',
-    shadowColor: '#4f46e5', shadowOffset: { width: 0, height: 8 },
+    shadowColor: '#ca8a04', shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3, shadowRadius: 16, elevation: 6,
   },
   submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '900' },

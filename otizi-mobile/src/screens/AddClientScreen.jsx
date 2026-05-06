@@ -111,7 +111,7 @@ export default function AddClientScreen({ navigation }) {
               style={styles.submitBtnWrap}
             >
               <LinearGradient
-                colors={['#6366f1', '#4f46e5']}
+                colors={['#a16207', '#ca8a04']}
                 style={styles.submitBtn}
               >
                 {loading ? (
