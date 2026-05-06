@@ -145,7 +145,7 @@ export default function DashboardScreen({ navigation }) {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
-              <Text style={styles.logoutIcon}>🚪</Text>
+              <Text style={styles.logoutText}>DÉCONNEXION</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
               <LinearGradient colors={['#6366f1', '#4f46e5']} style={styles.avatarCircle}>
@@ -313,16 +313,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   logoutBtn: {
-    marginRight: 15,
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    marginRight: 12,
+    paddingHorizontal: 10,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: '#fee2e2',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoutIcon: {
-    fontSize: 18,
+  logoutText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#ef4444',
   },
   balanceCard: {
     borderRadius: 28,
