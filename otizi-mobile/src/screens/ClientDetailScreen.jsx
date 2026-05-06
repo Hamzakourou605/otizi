@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   RefreshControl, StatusBar, Alert, Dimensions, ActivityIndicator,
 } from 'react-native';
+import { BarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import API, { downloadClientPDF } from '../services/api';
@@ -193,6 +194,42 @@ export default function ClientDetailScreen({ route, navigation }) {
             </LinearGradient>
         </View>
 
+        {/* Histogram / Bar Chart */}
+        {monthlyData.length > 0 && (
+            <View style={styles.chartCard}>
+                <Text style={styles.chartTitle}>Historique des dettes (Histogramme)</Text>
+                <BarChart
+                    data={{
+                        labels: monthlyData.slice(0, 6).reverse().map(m => m.month.split('-')[1]),
+                        datasets: [{
+                            data: monthlyData.slice(0, 6).reverse().map(m => m.isPaid ? 0 : m.debt)
+                        }]
+                    }}
+                    width={width - 40}
+                    height={200}
+                    yAxisLabel=""
+                    yAxisSuffix=" MAD"
+                    chartConfig={{
+                        backgroundColor: '#fff',
+                        backgroundGradientFrom: '#fff',
+                        backgroundGradientTo: '#fff',
+                        decimalPlaces: 0,
+                        color: (opacity = 1) => `rgba(239, 68, 68, ${opacity})`, // Rouge pour la dette
+                        labelColor: () => '#94a3b8',
+                        style: { borderRadius: 16 },
+                        barPercentage: 0.6,
+                    }}
+                    style={{
+                        marginVertical: 8,
+                        borderRadius: 16,
+                        marginLeft: -10
+                    }}
+                    fromZero={true}
+                    showValuesOnTopOfBars={true}
+                />
+            </View>
+        )}
+
         {/* Monthly Management (New Feature) */}
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Gestion par mois</Text>
@@ -221,10 +258,15 @@ export default function ClientDetailScreen({ route, navigation }) {
                             )}
                             <TouchableOpacity 
                                 style={styles.clearBtn}
+                                activeOpacity={0.6}
                                 onPress={() => handleClearMonth(m.month)}
                                 disabled={actionLoading === m.month}
                             >
-                                <Text style={styles.clearBtnText}>Effacer</Text>
+                                {actionLoading === m.month ? (
+                                    <ActivityIndicator size="small" color="#ef4444" />
+                                ) : (
+                                    <Text style={styles.clearBtnText}>Effacer</Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     )}
@@ -288,6 +330,24 @@ const styles = StyleSheet.create({
   statBox: { padding: 24, borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 4 },
   statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '700', marginBottom: 4 },
   statValue: { color: '#fff', fontSize: 28, fontWeight: '900' },
+  chartCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  chartTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   section: { marginBottom: 24 },
   sectionTitle: { fontSize: 16, fontWeight: '900', color: '#1e293b', marginBottom: 16 },
   monthCard: { backgroundColor: '#fff', padding: 16, borderRadius: 20, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 8, elevation: 1 },
@@ -299,7 +359,15 @@ const styles = StyleSheet.create({
   monthActions: { flexDirection: 'row', gap: 10 },
   payBtn: { flex: 1, backgroundColor: '#16a34a', height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   payBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
-  clearBtn: { paddingHorizontal: 12, backgroundColor: '#fee2e2', height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  clearBtn: { 
+    paddingHorizontal: 16, 
+    backgroundColor: '#fee2e2', 
+    height: 44, 
+    borderRadius: 12, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    minWidth: 80,
+  },
   clearBtnText: { color: '#ef4444', fontSize: 12, fontWeight: '800' },
   actions: { marginBottom: 24 },
   mainAction: { backgroundColor: '#1e1b4b', height: 56, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },

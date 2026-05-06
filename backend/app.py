@@ -142,28 +142,25 @@ def login():
 
 @app.route('/admin/clients/<id>', methods=['DELETE'])
 @jwt_required()
-def delete_client(id):
+def archive_client(id):
     identity = get_jwt_identity()
     admin_id, role = identity.split(':')
     
     if role != 'admin':
         return jsonify({'msg': 'Admin access required'}), 403
 
-    # 1. Supprimer l'utilisateur
-    res = users_col.delete_one({'_id': ObjectId(id)})
-    if res.deleted_count == 0:
+    # On ne supprime plus, on ARCHIVE
+    res = users_col.update_one(
+        {'_id': ObjectId(id)}, 
+        {'$set': {'status': 'archive', 'archived_at': datetime.utcnow()}}
+    )
+    
+    if res.matched_count == 0:
         return jsonify({'msg': 'Client non trouvé'}), 404
 
-    # 2. Supprimer toutes ses transactions
-    transactions_col.delete_many({'client_id': id})
-    
-    # 3. Supprimer ses statuts mensuels
-    monthly_status_col.delete_many({'client_id': id})
+    log_admin_action(admin_id, "ARCHIVE_CLIENT", id, 0, "Client déplacé vers les archives")
 
-    # 4. Log l'action
-    log_admin_action(admin_id, "DELETE_CLIENT", id, 0, "Suppression complète du client")
-
-    return jsonify({'msg': 'Client supprimé avec succès'}), 200
+    return jsonify({'msg': 'Client archivé avec succès'}), 200
     
 @app.route('/users/push-token', methods=['POST'])
 @jwt_required()
@@ -191,6 +188,7 @@ def get_clients():
         return jsonify({'msg': 'Admin access required'}), 403
 
     clients = list(users_col.find({'role': 'client'}, {'password': 0}))
+    # On renvoie tout, c'est le mobile qui fera le tri entre actifs et archives
     print(f"Found {len(clients)} clients in DB")
     
     all_txs = list(transactions_col.find())
@@ -384,6 +382,7 @@ def add_transaction():
             'old_balance': old_balance,
             'new_balance': new_balance,
             'date': date_str,
+            'heure': datetime.now().strftime('%H:%M'),
             'mois': mois,
             'created_at': datetime.utcnow(),
             'created_by': user_id
@@ -491,6 +490,7 @@ def pay_month():
         'montant': amount_paid,
         'description': f"Paiement complet du mois {mois}",
         'date': datetime.now().strftime('%Y-%m-%d'),
+        'heure': datetime.now().strftime('%H:%M'),
         'mois': mois,
         'created_at': datetime.utcnow(),
         'created_by': admin_id

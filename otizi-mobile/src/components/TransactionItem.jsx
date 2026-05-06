@@ -26,7 +26,9 @@ const TransactionItem = ({ item }) => {
         <Text style={styles.description} numberOfLines={1}>
           {item.description || config.label}
         </Text>
-        <Text style={styles.date}>{item.date} · {config.label}</Text>
+        <Text style={styles.date}>
+          {item.date} {item.heure ? `à ${item.heure}` : ''} · {config.label}
+        </Text>
       </View>
 
       {/* Amount */}
