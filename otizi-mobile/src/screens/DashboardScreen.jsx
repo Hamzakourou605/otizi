@@ -4,6 +4,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   RefreshControl, StatusBar, Alert,
 } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
@@ -21,6 +22,24 @@ export default function DashboardScreen({ navigation }) {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const registerForPushNotifications = async () => {
+    try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') return;
+
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log('Push Token:', token);
+      await API.post('/users/push-token', { push_token: token });
+    } catch (err) {
+      console.error('Push registration error:', err);
+    }
+  };
 
   // Route différente selon le rôle
   const fetchData = useCallback(async () => {
@@ -58,6 +77,7 @@ export default function DashboardScreen({ navigation }) {
 
   useEffect(() => {
     fetchData();
+    registerForPushNotifications();
 
     // Socket : mises à jour temps réel
     if (!socket.connected) socket.connect();
@@ -123,13 +143,18 @@ export default function DashboardScreen({ navigation }) {
               {isAdmin ? 'Vue Administrateur' : 'Client Vérifié'}
             </Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <LinearGradient colors={['#6366f1', '#4f46e5']} style={styles.avatarCircle}>
-              <Text style={styles.avatarText}>
-                {(user?.nom || 'U').substring(0, 2).toUpperCase()}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
+              <Text style={styles.logoutIcon}>🚪</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+              <LinearGradient colors={['#6366f1', '#4f46e5']} style={styles.avatarCircle}>
+                <Text style={styles.avatarText}>
+                  {(user?.nom || 'U').substring(0, 2).toUpperCase()}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Main Balance Card */}
@@ -286,6 +311,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '900',
     fontSize: 14,
+  },
+  logoutBtn: {
+    marginRight: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#fee2e2',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutIcon: {
+    fontSize: 18,
   },
   balanceCard: {
     borderRadius: 28,

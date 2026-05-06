@@ -44,6 +44,26 @@ def log_admin_action(admin_id, action, client_id=None, amount=0, note=""):
         'timestamp': datetime.utcnow()
     })
 
+def send_push_notification(user_id, title, body):
+    user = users_col.find_one({'_id': ObjectId(user_id)})
+    if not user or 'push_token' not in user:
+        return
+    
+    token = user['push_token']
+    url = "https://exp.host/--/api/v2/push/send"
+    payload = {
+        "to": token,
+        "title": title,
+        "body": body,
+        "sound": "default",
+        "data": {"user_id": str(user_id)}
+    }
+    
+    try:
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"Error sending push: {e}")
+
 @app.route('/', methods=['GET'])
 def health_check():
     return jsonify({
@@ -398,6 +418,11 @@ def add_transaction():
             'type': t_type,
             'amount': amount
         }, room=client_id)
+
+        # Send Push Notification
+        title = "OtiZi - Mise à jour"
+        msg = f"Nouveau {t_type} de {amount} MAD. Nouveau solde : {new_balance} MAD"
+        send_push_notification(client_id, title, msg)
 
         # Emit to all admins to sync their dashboards
         socketio.emit('admin_update', {

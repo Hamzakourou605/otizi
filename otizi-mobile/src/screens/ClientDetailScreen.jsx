@@ -230,50 +230,6 @@ export default function ClientDetailScreen({ route, navigation }) {
             </View>
         )}
 
-        {/* Monthly Management (New Feature) */}
-        <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Gestion par mois</Text>
-            {monthlyData.map((m) => (
-                <View key={m.month} style={[styles.monthCard, m.isPaid && styles.monthCardPaid]}>
-                    <View style={styles.monthHeader}>
-                        <View>
-                            <Text style={styles.monthLabel}>{m.month}</Text>
-                            <Text style={[styles.monthDebt, m.isPaid && {color: '#16a34a'}]}>
-                                {m.isPaid ? 'PAYÉ' : `${m.debt.toLocaleString()} MAD`}
-                            </Text>
-                        </View>
-                        {m.isPaid && <Text style={styles.checkIcon}>✅</Text>}
-                    </View>
-
-                    {isAdmin && (
-                        <View style={styles.monthActions}>
-                            {!m.isPaid && (
-                                <TouchableOpacity 
-                                    style={styles.payBtn}
-                                    onPress={() => handlePayMonth(m.month, m.debt)}
-                                    disabled={actionLoading === m.month}
-                                >
-                                    {actionLoading === m.month ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.payBtnText}>Solder le mois</Text>}
-                                </TouchableOpacity>
-                            )}
-                            <TouchableOpacity 
-                                style={styles.clearBtn}
-                                activeOpacity={0.6}
-                                onPress={() => handleClearMonth(m.month)}
-                                disabled={actionLoading === m.month}
-                            >
-                                {actionLoading === m.month ? (
-                                    <ActivityIndicator size="small" color="#ef4444" />
-                                ) : (
-                                    <Text style={styles.clearBtnText}>Effacer</Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                </View>
-            ))}
-        </View>
-
         {/* Action Button */}
         {isAdmin && (
             <View style={styles.actions}>
