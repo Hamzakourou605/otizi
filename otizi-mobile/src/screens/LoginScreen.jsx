@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ActivityIndicator,
-  Alert, StatusBar, Dimensions,
+  Alert, StatusBar, Dimensions, Image
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import API from '../services/api';
@@ -55,12 +55,11 @@ export default function LoginScreen() {
 
           {/* Logo */}
           <View style={styles.logoSection}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoIconText}>OT</Text>
-            </View>
-            <Text style={styles.brand}>
-              Oti<Text style={styles.brandAccent}>Zi</Text>
-            </Text>
+            <Image 
+              source={require('../../assets/logo.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <Text style={styles.tagline}>Gestion de Crédit Magasin</Text>
           </View>
 
@@ -152,6 +151,11 @@ const styles = StyleSheet.create({
   logoSection: {
     alignItems: 'center',
     marginBottom: 32,
+  },
+  logoImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
   },
   logoCircle: {
     width: 72,
