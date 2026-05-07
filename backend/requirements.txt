@@ -1,12 +1,12 @@
 flask
 flask-cors
 flask-jwt-extended
-flask-socketio
-pymongo[srv]
+flask-socketio==5.3.6
+pymongo
 bcrypt
 python-dotenv
 fpdf2
 requests
-gunicorn
+gunicorn==21.2.0
 dnspython
-eventlet
+eventlet==0.33.3

@@ -24,6 +24,7 @@
       "package": "com.otizi.mobile",
       "edgeToEdgeEnabled": true,
       "permissions": [
+        "INTERNET",
         "INTERNET"
       ]
     },
@@ -55,6 +56,12 @@
         }
       ]
     ],
-    "owner": "kodo88"
+    "owner": "kodo88",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/642ff134-f44d-4396-badc-65af79794f01"
+    }
   }
 }
