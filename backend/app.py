@@ -169,14 +169,32 @@ def archive_client(id):
     if role != 'admin':
         return jsonify({'msg': 'Admin access required'}), 403
 
-    # On ne supprime plus, on ARCHIVE
+    print(f"[ARCHIVE] Tentative d'archivage du client ID: {id}")
+    
+    try:
+        object_id = ObjectId(id)
+    except Exception as e:
+        print(f"[ARCHIVE ERROR] ID invalide: {id} - {str(e)}")
+        return jsonify({'msg': f'ID client invalide: {id}'}), 400
+
+    # Vérifier que le client existe
+    client = users_col.find_one({'_id': object_id})
+    if not client:
+        print(f"[ARCHIVE ERROR] Client introuvable: {id}")
+        return jsonify({'msg': 'Client non trouvé'}), 404
+
+    # Archiver
     res = users_col.update_one(
-        {'_id': ObjectId(id)}, 
+        {'_id': object_id}, 
         {'$set': {'status': 'archive', 'archived_at': datetime.utcnow()}}
     )
     
-    log_admin_action(admin_id, "ARCHIVE_CLIENT", id, 0, "Client déplacé vers les archives")
+    print(f"[ARCHIVE] Résultat: matched={res.matched_count}, modified={res.modified_count}")
+    
+    if res.modified_count == 0:
+        return jsonify({'msg': 'Client déjà archivé ou erreur'}), 200
 
+    log_admin_action(admin_id, "ARCHIVE_CLIENT", id, 0, f"Client {client.get('nom')} archivé")
     return jsonify({'msg': 'Client archivé avec succès'}), 200
 
 @app.route('/users/push-token', methods=['POST'])

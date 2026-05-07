@@ -107,7 +107,7 @@ export default function ClientDetailScreen({ route, navigation }) {
   const handleDeleteClient = () => {
     Alert.alert(
       'Archiver le client',
-      `Voulez-vous déplacer ${client?.nom} vers la section "Anciens Clients" ? Ses données seront conservées mais il ne sera plus dans la liste active.`,
+      `Voulez-vous déplacer ${client?.nom || clientName} vers la section "Anciens Clients" ? Ses données seront conservées mais il ne sera plus dans la liste active.`,
       [
         { text: 'Annuler', style: 'cancel' },
         { 
@@ -115,12 +115,14 @@ export default function ClientDetailScreen({ route, navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              // On utilise l'ID MongoDB correct
-              await API.delete(`/admin/clients/${client?._id || clientId}`);
+              console.log('Archiving client:', clientId);
+              const res = await API.delete(`/admin/clients/${clientId}`);
+              console.log('Archive response:', res.data);
               Alert.alert('Succès', 'Client archivé et déplacé vers la section Anciens Clients.');
               navigation.goBack();
             } catch (err) {
-              Alert.alert('Erreur', 'Impossible d\'archiver le client.');
+              console.error('Archive error details:', err.response?.data || err.message);
+              Alert.alert('Erreur', 'Impossible d\'archiver le client. Veuillez réessayer.');
             }
           }
         }
