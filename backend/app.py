@@ -160,6 +160,8 @@ def login():
         }
     }), 200
 
+# Route for archiving clients (soft delete)
+
 @app.route('/admin/clients/<id>', methods=['DELETE'])
 @jwt_required()
 def archive_client(id):
