@@ -1,5 +1,14 @@
-import eventlet
-eventlet.monkey_patch()
+try:
+    from gevent import monkey
+    monkey.patch_all()
+    print("Gevent monkey patching applied")
+except ImportError:
+    try:
+        import eventlet
+        eventlet.monkey_patch()
+        print("Eventlet monkey patching applied")
+    except ImportError:
+        print("No async monkey patching applied")
 
 import os
 from flask import Flask, jsonify, request, send_file
@@ -851,4 +860,4 @@ def on_join(data):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=os.environ.get('DEBUG', 'True') == 'True')
+    socketio.run(app, host='0.0.0.0', port=port, debug=os.environ.get('DEBUG', 'True') == 'True')

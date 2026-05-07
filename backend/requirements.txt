@@ -8,5 +8,7 @@ python-dotenv
 fpdf2
 requests
 eventlet
+gevent
+gevent-websocket
 gunicorn
 dnspython
