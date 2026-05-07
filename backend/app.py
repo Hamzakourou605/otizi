@@ -196,6 +196,42 @@ def save_push_token():
     )
     return jsonify({'msg': 'Token enregistré avec succès'}), 200
 
+@app.route('/admin/create-client', methods=['POST'])
+@jwt_required()
+def create_client():
+    identity = get_jwt_identity()
+    admin_id, role = identity.split(':')
+    
+    if role != 'admin':
+        return jsonify({'msg': 'Admin access required'}), 403
+
+    data = request.json
+    nom = data.get('nom')
+    email = data.get('email')
+    password = data.get('password', '123456')
+    telephone = data.get('telephone', '')
+
+    if not nom or not email:
+        return jsonify({'msg': 'Nom et email obligatoires'}), 400
+
+    if users_col.find_one({'email': email}):
+        return jsonify({'msg': 'Cet email est déjà utilisé'}), 400
+
+    new_user = {
+        'nom': nom,
+        'email': email,
+        'password': password, # Idéalement haché, mais on garde la logique actuelle
+        'telephone': telephone,
+        'role': 'client',
+        'status': 'active',
+        'created_at': datetime.utcnow()
+    }
+    
+    users_col.insert_one(new_user)
+    log_admin_action(admin_id, "CREATE_CLIENT", str(new_user.get('_id')), 0, f"Création du client {nom}")
+
+    return jsonify({'msg': 'Client créé avec succès'}), 201
+
 # --- ADMIN ROUTES ---
 
 @app.route('/clients', methods=['GET'])
