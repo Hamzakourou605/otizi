@@ -23,7 +23,6 @@
       },
       "package": "com.otizi.mobile",
       "edgeToEdgeEnabled": true,
-      "usesCleartextTraffic": true,
       "permissions": [
         "INTERNET"
       ]

@@ -348,11 +348,26 @@ def get_admin_stats():
     
     top_debtors = sorted([c for c in clients if c['credit_total'] > 0], key=lambda x: x['credit_total'], reverse=True)[:5]
 
+    # Evolution mensuelle globale
+    evolution = {}
+    for t in all_txs:
+        m = t.get('mois') or (t.get('date')[:7] if t.get('date') else 'Inconnu')
+        if m not in evolution: evolution[m] = 0
+        if t.get('type') in ['achat', 'correction']:
+            evolution[m] += t.get('montant', 0)
+        else:
+            evolution[m] -= t.get('montant', 0)
+    
+    admin_evolution = [{"month": m, "balance": b} for m, b in sorted(evolution.items())][-6:]
+
     recent_txs = list(transactions_col.find().sort('created_at', -1).limit(10))
     for t in recent_txs:
         t['_id'] = str(t['_id'])
-        client_doc = users_col.find_one({'_id': ObjectId(t['client_id'])})
-        t['client_name'] = client_doc['nom'] if client_doc else 'Unknown'
+        try:
+            client_doc = users_col.find_one({'_id': ObjectId(t['client_id'])})
+            t['client_name'] = client_doc['nom'] if client_doc else 'Unknown'
+        except:
+            t['client_name'] = 'Inconnu'
 
     return jsonify({
         'total_clients': total_clients,
@@ -361,7 +376,8 @@ def get_admin_stats():
         'prev_month_credit': prev_month_credit_total,
         'total_revenue': total_paiements,
         'recent_transactions': recent_txs,
-        'top_debtors': top_debtors
+        'top_debtors': top_debtors,
+        'monthly_evolution': admin_evolution
     }), 200
 
 @app.route('/admin/logs', methods=['GET'])

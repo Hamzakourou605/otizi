@@ -13,7 +13,11 @@ const getBaseURL = () => {
   // En mode test (Expo Go), on utilise votre PC local
   // En mode production (APK), on utilisera Render
   if (__DEV__) {
-    return `http://${PC_IP}:5000`;
+    // Si vous testez en local avec votre PC, décommentez la ligne ci-dessous
+    // return `http://${PC_IP}:5000`;
+    
+    // Par défaut, on utilise Render pour éviter les problèmes de connexion WiFi/4G
+    return PRODUCTION_URL; 
   }
   return PRODUCTION_URL; 
 };

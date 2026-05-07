@@ -53,13 +53,9 @@ export default function LoginScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <View style={styles.container}>
 
-          {/* Logo */}
+          {/* Header simple sans logo */}
           <View style={styles.logoSection}>
-            <Image 
-              source={require('../../assets/logo.png')} 
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
+            <Text style={styles.brand}>OtiZi</Text>
             <Text style={styles.tagline}>Gestion de Crédit Magasin</Text>
           </View>
 

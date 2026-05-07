@@ -31,7 +31,7 @@ export async function registerForPushNotificationsAsync() {
     
     // Obtenir le token Expo
     try {
-        const projectId = '762a4a7f-71b0-466d-9d89-898318aef925'; // Remplacer par votre ID de projet Expo si nécessaire
+        const projectId = '642ff134-f44d-4396-badc-65af79794f01'; // ID du projet Expo correct
         token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
         console.log('Expo Push Token:', token);
     } catch (e) {

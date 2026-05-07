@@ -54,10 +54,7 @@ export default function DashboardScreen({ navigation }) {
           balance: res.data.global_credit,
           total_credit: res.data.this_month_credit,
           total_paid: res.data.total_revenue,
-          monthly_evolution: (res.data.recent_transactions || []).slice(0, 6).map((t, i) => ({
-            month: t.date || `T${i + 1}`,
-            balance: t.montant || 0,
-          })),
+          monthly_evolution: res.data.monthly_evolution || [],
           extra: {
             clients: res.data.total_clients,
             prev_month: res.data.prev_month_credit,
