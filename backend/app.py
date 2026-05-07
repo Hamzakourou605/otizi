@@ -1,15 +1,3 @@
-try:
-    from gevent import monkey
-    monkey.patch_all()
-    print("Gevent monkey patching applied")
-except ImportError:
-    try:
-        import eventlet
-        eventlet.monkey_patch()
-        print("Eventlet monkey patching applied")
-    except ImportError:
-        print("No async monkey patching applied")
-
 import os
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
