@@ -847,6 +847,5 @@ def on_join(data):
     print(f"Client {client_id} joined room")
 
 if __name__ == '__main__':
-    # socketio.run instead of app.run for WebSocket support
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=os.environ.get('DEBUG', 'True') == 'True')
+    app.run(host='0.0.0.0', port=port, debug=os.environ.get('DEBUG', 'True') == 'True')
