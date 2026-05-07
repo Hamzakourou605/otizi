@@ -106,20 +106,21 @@ export default function ClientDetailScreen({ route, navigation }) {
 
   const handleDeleteClient = () => {
     Alert.alert(
-      'Supprimer le client',
-      `Êtes-vous ABSOLUMENT sûr de vouloir supprimer ${client?.nom} ? Toutes ses données et transactions seront perdues à jamais.`,
+      'Archiver le client',
+      `Voulez-vous déplacer ${client?.nom} vers la section "Anciens Clients" ? Ses données seront conservées mais il ne sera plus dans la liste active.`,
       [
         { text: 'Annuler', style: 'cancel' },
         { 
-          text: 'SUPPRIMER DÉFINITIVEMENT', 
+          text: 'OUI, ARCHIVER', 
           style: 'destructive',
           onPress: async () => {
             try {
-              await API.delete(`/admin/clients/${clientId}`);
-              Alert.alert('Succès', 'Client supprimé.');
+              // On utilise l'ID MongoDB correct
+              await API.delete(`/admin/clients/${client?._id || clientId}`);
+              Alert.alert('Succès', 'Client archivé et déplacé vers la section Anciens Clients.');
               navigation.goBack();
             } catch (err) {
-              Alert.alert('Erreur', 'Impossible de supprimer le client.');
+              Alert.alert('Erreur', 'Impossible d\'archiver le client.');
             }
           }
         }
@@ -240,12 +241,12 @@ export default function ClientDetailScreen({ route, navigation }) {
                     <Text style={styles.mainActionText}>+ Ajouter un achat/paiement</Text>
                 </TouchableOpacity>
 
-                {/* DELETE CLIENT BUTTON */}
+                {/* ARCHIVE CLIENT BUTTON */}
                 <TouchableOpacity 
                     style={styles.deleteClientBtn}
                     onPress={handleDeleteClient}
                 >
-                    <Text style={styles.deleteClientText}>Supprimer le compte client</Text>
+                    <Text style={styles.deleteClientText}>Archiver le compte client</Text>
                 </TouchableOpacity>
             </View>
         )}
