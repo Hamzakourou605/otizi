@@ -5,6 +5,7 @@ import {
   RefreshControl, StatusBar, Alert,
 } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
@@ -33,7 +34,8 @@ export default function DashboardScreen({ navigation }) {
       }
       if (finalStatus !== 'granted') return;
 
-      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId || Constants.easConfig?.projectId;
+      const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       console.log('Push Token:', token);
       await API.post('/users/push-token', { push_token: token });
     } catch (err) {

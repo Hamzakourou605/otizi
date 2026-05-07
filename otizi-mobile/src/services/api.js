@@ -18,7 +18,7 @@ const BASE_URL = getBaseURL();
 
 const API = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000,
+  timeout: 30000,
 });
 
 import * as SecureStore from 'expo-secure-store';

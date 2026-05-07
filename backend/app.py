@@ -175,26 +175,26 @@ def archive_client(id):
         {'$set': {'status': 'archive', 'archived_at': datetime.utcnow()}}
     )
     
-    if res.matched_count == 0:
-        return jsonify({'msg': 'Client non trouvé'}), 404
-
     log_admin_action(admin_id, "ARCHIVE_CLIENT", id, 0, "Client déplacé vers les archives")
 
     return jsonify({'msg': 'Client archivé avec succès'}), 200
-    
+
 @app.route('/users/push-token', methods=['POST'])
 @jwt_required()
 def save_push_token():
     identity = get_jwt_identity()
-    user_id, role = identity.split(':')
-    data = request.get_json()
-    token = data.get('push_token')
+    user_id, _ = identity.split(':')
+    data = request.json
+    push_token = data.get('push_token')
     
-    if not token:
-        return jsonify({'msg': 'Token is required'}), 400
+    if not push_token:
+        return jsonify({'msg': 'Token manquant'}), 400
         
-    users_col.update_one({'_id': ObjectId(user_id)}, {'$set': {'push_token': token}})
-    return jsonify({'msg': 'Push token updated'}), 200
+    users_col.update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': {'push_token': push_token}}
+    )
+    return jsonify({'msg': 'Token enregistré avec succès'}), 200
 
 # --- ADMIN ROUTES ---
 
