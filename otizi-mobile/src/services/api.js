@@ -10,7 +10,11 @@ const getBaseURL = () => {
   if (Platform.OS === 'web') {
     return 'http://localhost:5000';
   }
-  // Utiliser PRODUCTION_URL pour que l'APK fonctionne partout (4G, Wi-Fi externes, etc.)
+  // En mode test (Expo Go), on utilise votre PC local
+  // En mode production (APK), on utilisera Render
+  if (__DEV__) {
+    return `http://${PC_IP}:5000`;
+  }
   return PRODUCTION_URL; 
 };
 
