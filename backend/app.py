@@ -1,5 +1,3 @@
-import eventlet
-eventlet.monkey_patch()
 
 import os
 from flask import Flask, jsonify, request, send_file
@@ -19,7 +17,7 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Configuration
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'creditpro-super-robust-secret-key-2024-ahmed')

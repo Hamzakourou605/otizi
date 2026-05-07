@@ -9,4 +9,3 @@ fpdf2
 requests
 gunicorn==21.2.0
 dnspython
-eventlet==0.33.3
